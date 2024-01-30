@@ -1,0 +1,223 @@
+https://github.com/stacksimplify/aws-eks-kubernetes-masterclass/tree/master/02-Docker-Fundamentals
+https://github.com/15Dkatz/docker-guides 
+
+1.Introduction
+-Docker is a platform that lets you package, develop and run applications in containers.
+-Container is a virtual environment on top of the OS kernel (kernel is the core software running in the computer) to capture all its software – libraries, dependencies, etc.
+-Hypervisor will be above the hardware on which multiple virtual machine can be created with OS, libraries and dependencies for each VM.
+-Docker containers are flexible as even the complex application can be containerized, lightweight as they share the same host kernel, portable as they can be deployed to cloud and run anywhere, scalable and secure. 
+
+-Docker engine consists of docker server, an API and CLI.
+-Docker server is called as docker daemon(daemon in generally refers to a background process) is a background process which will be running continuously to keep the containers alive. 
+	 
+-We can confirm if the docker is running by entering docker as a command. 
+
+-Namespace is the linux kernal component which is used to provide the isolation layer to the container. Docker uses namespaces of various kinds to provide the isolation that containers need in order to remain portable and refrain from affecting the remainder of the host system. Each aspect of a container runs in a separate namespace and its access is limited to that namespace. Types of namespaces are, PID (process ID), mount, network, IPC (Inter process communication), User.
+
+- Cgroups (control group) provide resource limitation and reporting capability within the container space. They allow granular control over what host resources are allocated to the containers and when they are allocated. Common cgroups are, CPU, Memory, Network Bandwidth, Disk and Priority. 
+
+2.Docker architecture
+Docker host consists of
+a. Docker daemon- It listens for docker api requests and manages images, containers, networks and volumes.
+
+b. Docker client CLI- It can be installed in the docker host or anyother machine. It is used for the communication with the docker daemon. 
+Docker client can communicate with multiple daemon. To communicate with multiple daemon, -H or --host can be used in the command.
+Eg: docker --host=192.168.1.100 version
+docker --host=192.168.1.200 version
+
+c. Docker images: 
+-It is a read only template with instructions to create the docker container.
+-The instructions defines everything a container needs such as code, library, environment variables, configuration files and more.
+
+Image to container relationship
+-Container is the result of running an image.
+-Single image can create multiple containers.
+
+
+d. Docker containers:
+-Docker containers are lightweight and portable runtime environments that package application code and dependencies together with the underlying operating system into a single, self-contained unit. 
+-Each container runs in its own isolated environment, providing an additional layer of abstraction between the application and the host operating system.
+-Docker uses its feature, docker image cache to create a container with similar base image. (Reason why creation of the container for the second time takes less time)
+-Can connect a container to one or more network, attach storage also create new image based on its current state.
+-If a Docker container is removed without persistent storage, any data or changes made to the container while it was running will be lost. 
+-Which includes any modifications made to the file system, any installed software or packages and any changes made to the container's environment variables. 
+-When a Docker container is started, it creates a read-write layer on top of the image's read-only layer. This read-write layer is where any changes made to the container are stored.
+-If the container is removed, this read-write layer is also removed, and any changes made to the container are lost. 
+-However, if the container was created with a Dockerfile or a Compose file, the image and any changes made to it can be easily rebuilt or recreated but any data or changes made to the previous container will still be lost. Hence, it's recommended to use persistent storage options such as Docker volumes or bind mounts. 
+-With persistent storage, any data or changes made to the container are stored outside of the container's read-write layer and can persist even if the container is removed. 
+
+
+3. Docker file:
+- It is a text document which is used to create docker container through the command line.
+-All the key works are uppercase. Key words used are,
+   FROM --> To specify the base image
+   WORKDIR --> You can specify your working directory inside the container using the WORKDIR instruction. Is the directory in which the docker system will be operating in. The work directory mentioned here can be accessed when we do docker exec and docker attach commands. We will go inside this directory and will execute the commands. 
+   RUN --> To start running the command within the container. It will be executed during the building of the image. You can use several RUN instructions to run different commands. But it is an efficient approach to combine all the RUN instructions into a single one. Each RUN command creates a new cache layer or an intermediate image layer and hence chaining all of them into a single line, becomes efficient. However, chaining multiple RUN instructions could lead to cache bursts as well.
+   MAINTAINER --> It is an optional command but one of the best practices as it gives details about the person who is maintaining the dockerfile.
+   CMD --> To specify the default command of the container. It will be executed only after the creation of the container. Example if creating an Ubuntu container, the CMD will be bash. It will be mentioned within [ “ ”, “ ”]. In case you specify a command during the docker run command, it overwrites the default one specified in the dockerfile. Specifying more than one CMD instructions, will allow only the last one to get executed. 
+   ENTRYPOINT --> Like CMD, it is also used to execute the command to the container. Specifying more than one ENTRYPOINT instructions, will allow only the last one to get executed. But if both CMD and ENTRYPOINT are specified in the dockerfile, ENTRYPOINT will be executed as an command and CMD will be as additional options. In case you specify a command during the docker run command, it executes both commands in dockerfile and in command line.
+   COPY --> To copy files from the host machine to the container. Eg, COPY ./A ./B. Here, the A file or directory in the host machine is copied to the new container directory of file to copy into. 
+   ADD --> Similar to COPY instruction, you can use ADD to copy files and folders from your local machine to docker containers. However, ADD also allows you to copy files from a URL as well as a tar file. 
+   EXPOSE --> It is more an informational key than the functional. 
+   LABEL --> Used to add description to the docker image
+
+
+
+4.Docker installation:
+a. Docker can be directly installed in the servers such as CentOS, Debian, Fedora and Ubuntu using the server version.
+b. For the windows and mac docker desktop version can be installed
+-Hyper-V and containers windows features must be enabled.
+
+-WSL(window subsystem for Linux): By enabling the WSL, can run both linux and windows containers in docker desktop on the same machine. 
+
+5. Docker container environments
+-Each container's environment will be isolated from that of other container. So each container will have its independent file system and local networks.
+
+6. Docker volumes and mounts
+-The data created by a docker container lives only till the container exists in the docker engine.
+-The data is isolated to each container
+-Hence volume mounts and bind mounts are used to store the data of the container and to share the data with other containers. So they are used to persist the data beyond the life time of the containers.
+
+Volume mounts
+-Only docker container process can write to the volumes 
+-They are directories stored within the docker engine that can be individually mounted to the containers.
+-Can share the data across the containers
+-We can mount as many as containers at the same time.
+-Data will be stored in the docker engine I.e, in the docker file system and not in the host machine.
+-Data can be shared to other containers when connected to remote machine.
+-docker volume create <new volume name> --> Create new volume. The created volume will be mounted to the path /var/lib/docker/volume/........path. The path can be obtained from inspect command. We need to mount this volume to a container to access the data.
+-docker volume ls --> list volumes
+-docker volume inspect <name of the volume>--> Inspect the configuration of the volume.
+-docker run -it --name=<new docker name> --mount source=<name of the volume created>,target=<directory in the container where we want to mount the volume eg, /src/shared> <image name> <command> --> By executing this command, we will be in the file system of the container with root user. Here, cd to the target location and create the required data here. Use ctrl+p+q to exit. New container can be created with the run command and the same data created will be shared with that container too  
+-docker container run --mount source=<name of the volume created>,target=<directory in the container where we want to mount the volume eg, /src/shared> <container name> --> used to attach the volume to an existing container
+-docker volume rm <volume name> --> remove the volume
+
+Bind mounts
+-Both host machine and the docker process can able to write to the volume.
+-These are the directories in the host machine that will be mounted into the containers.
+-As it is present in the host machine, that can be accessed by any non docker applications hence they are less secure.
+-Create a file within the directory  in the local machine and get the path.
+-docker run -it --name=<new docker name> --mount type=bind,source=<path of the file created obtained by PWD in the path>,target=<path in the container to mount, eg: /src/mount> <image name>
+After execution, we will be pointed within the root directory of the container and we can cross check the creation of the file.
+The created file will also be created in the local machine in the mentioned path.
+-Bind mounts are useful when you want to integrate docker with other process. But, no security to the volumes as it can be easily accessed.
+
+Tmpfs mounts
+-Data does not persist in the local or in container. It will be present in the docker's memory. 
+-The container can create files outside the container’s writable layer 
+-The data will be available only as long as the container is running. The data will be deleted once the container is stopped.
+-This is useful to temporarily store sensitive files that you don’t want to persist in either the host or the container writable layer. 
+
+Limitations of tmpfs mounts
+-Unlike volumes and bind mounts, you can’t share tmpfs mounts between containers.
+-This functionality is only available if you’re running Docker on Linux.
+
+7. Docker network
+-Is used to share the resources and send messages with the multiple containers.
+-Networks for docker is created automatically when docker is installed.
+-docker network ls --> to list the networks
+-docker network inspect <network name I.e bridge/none/host> --> used to get details of the containers connected to a particular network in the container section. 
+
+Bridge network
+-It is the default docker network.
+- IP address will be assigned to each containers, the containers within the same network can connect with each other.
+-We can test the connection b/w two containers within the network using the IP address of the containers which can be obtained using inspect command.
+-We check the connection b/w the containers, use attach command to one container and use ping along with the IP of the other container. If we 
+
+None network
+-IP address will not be assigned to the containers if they are attached to none network. Hence, containers cannot communicate with each other and the containers in other network.
+
+Host network
+-Containers in this network will directly connect with the host and will have access to all local host ports. 
+
+Private network
+-docker create network <network name> --> create new private network
+-When we inspect this private network, the driver will be mentioned as bridge. Which means that the network setup will be similar to that of the bridge.
+-docker run -it -d –name=<container name> --network=<private network name> <image name>
+-We can check the network by pinging other container IP or name too in private network. 
+
+Overlay network
+-The overlay network driver creates a distributed network among multiple Docker daemon hosts 
+
+
+
+Macvlan network
+
+
+
+8. Docker container lifecycle
+- Created: A container that has been created but not started
+-Running: A container running with all its processes
+-Paused: A container whose processes have been paused
+-Stopped: A container whose processes have been stopped
+-Deleted: A container in a dead stat
+
+
+
+
+9. Docker commands
+-docker search <word> --> it will search for the word related images in the dockerhub considering the image name and also description. Official images are the ones which are by docker. If the images are marked automated, then they will be backed by the version control system.
+- docker login -u username -p password --> login to dockerhub account
+- docker logout --> logout of the docker hub account
+-docker create --name=<new of the container> -it <image name> -->  used to create the docker container from the image from the hub.
+- docker container ps -->  list all the running containers
+- docker container ps -a -->  list all the containers
+- docker container ps -aq --> list of all container Ids
+- docker container ps -aq | xargs docker rm -f --> to remove all the containers
+- docker start/stop/pause <container name> -->  To start/stop/pause the container 
+- docker attach <container> -->  used to attach your terminal’s standard input, output, and error (or any combination of the three) to a running container using the container’s ID or name. This allows you to view its ongoing output or to control it interactively, as though the commands were running directly in your terminal.
+Use ctrl+p+q to exit and come back to host machine.
+-docker logs <conatinerID> --> get the logs i.e, all the process which is executed or executing when the container is running 
+- docker exec -it <containerID> --> it is the interactive text input and output 
+ Use ctrl+p+q to exit and come back to host machine.
+-docker rm <containerID> --> Remove the stopped container 
+-docker rm -f <containerID> --> Remove the container forcefully 
+-docker build -t <new image name> . --> This will build a docker image in the current directory where the dockerfile will be created. If -t (tag) is not used, the image will be give a random name which will be difficult to identify.
+-docker build -t <image-name> -f <Dockerfile-path> . -->  used to build the docker container if the docker file is in other directory.
+-docker run --name=<container name> -it <image name> <command> --> Used to create, start an attach to a new container.
+-docker run -p a:b -d --name=<new container name> <image name> --> 
+     - If --name is not used, the container name will be auto generated which is not a best practice.
+     - -p is used for the port exposure. a:b where 'a' is the local port which is exposed from the local desktop and 'b' is the     container port. Here, b port is being mapped to port a. So by this we can access the application in port b with port a.
+    - -d refers to detach if not used, If you don't use when running a container with the docker run command, the container will start in the foreground and attach to the console. This means that you will see the output of the container in your terminal window, and you won't be able to run any other commands until you stop the container.
+- docker tag <image name with tag> <image name with new tag required>
+- docker port <container ID> --> list the port mapping of the container
+- docker top container ID --> to list the running processes of the container
+- docker commit <option> <containerID> <repo:tag> --> used to create a new image for the changes done to its file system. Commit commands helps to take the snapshot of the containers file system and create new image including the changes. Here, optional parameter that allows you to specify additional settings for the commit operation. Some common options include --author, --message, and --change. REPOSITORY: This is the name of the repository that you want to save the new image to. If you don't specify a repository name, Docker will use a randomly generated name.
+TAG: This is the tag that you want to apply to the new image. If you don't specify a tag, Docker will use the latest tag by default. 
+- docker diff <container ID> --> Inspect changes to files or directories on a container’s filesystem. The changes are tracked with 3 types such as,  A – File or directory was added; D -  File or directory was deleted; C -  File or directory was changed.
+
+9. Docker best practices
+-Use of docker ignore (.dockerignore) file to prevent the coping of unnecessary files to the container which will reduce the size of the running containers.
+-Split the docker files into multiple layers so docker utilizes the docker's layered cache. Layer image cache is a local file system maintained by docker in the local where the results of each steps of docker file will be stored.
+
+
+10. Docker compose
+-Use docker official image as base image.
+-Instead of taking a base operating system image and installing node.js, npm and whatever other tools you need for your application, use the official node image for your application.
+-Use of particular image version
+
+-Used to run multiple container as a single service I.e, multiple containers are composed together to create one larger multi container application.
+-Containers in docker compose become services that can server different purposes.
+-All the containers are defined within the docker-compose.yml in key value format and all the containers can be started with a single command.
+
+Docker-compose.yml file
+-It consists of version which helps docker engine to provide the required information for building the docker compose.
+-As the containers are referred as services in compose,  the containers are mentioned under the services key.
+-docker-compose up --> to create and start the containers
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

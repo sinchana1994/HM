@@ -1,0 +1,31 @@
+Redshift is focused on batch processing and analysis of large datasets for data warehousing and business intelligence purposes. 
+On the other hand, Kinesis is designed for real-time streaming data ingestion, processing, and analytics. The choice between Redshift and Kinesis depends 
+on your specific use case and whether you require real-time streaming analytics or batch-oriented data warehousing and analysis. In some cases, both 
+services can be used together in an integrated data processing pipeline, with Kinesis handling real-time data ingestion and preprocessing, and Redshift 
+performing deeper analysis and reporting on the processed data
+
+
+-It is also called as a data warehouse service used for collecting and storeing the data.
+-Comparitively redshift costs less than other cloud data warehouse services
+-It is high performance, low cost, scalable, highly available and highly flexible as snap shots can be created and redshift cluster from that snapshot also 
+simple migration availale.
+
+-Client application will reacts with leader node using JDBC (Java data based connectivity-Using this, we can monitor the connections from other clint 
+application) and ODBC (Open data based connectivity- Allows to interact with the live/irct data base of the amazon redshift).
+-One leader node can have multiple compute nodes. Leader node communicates with the client application and the compute node.Cluster is the group of 
+compute nodes. These nodes gather to a group called a data warehouse cluster.
+-Compute nodes are catogorized into slices which will have allowted with specified memory. Node slices work parallely which makes redshift the fastest 
+dataware house compared to others.
+
+-Redshift has column storage and compression
+-Data in column storage is stored in the form of column so that when the query is run, the data is pull out of the column for a quiker output.
+
+Steps to create redshift
+1. Create iam role for amazon redshift
+2. Launch a sample amazon redshift cluster 
+3. Authorize access to cluster
+4. Connect to sample cluster and run queries
+5. 
+
+
+

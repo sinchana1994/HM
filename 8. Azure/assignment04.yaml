@@ -1,0 +1,21 @@
+trigger:
+  branches:
+    include:
+      - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - script: echo 'Task 1'
+    displayName: 'Task 1'
+# Add your actual task configuration here
+  - script: echo 'Task 2'
+    displayName: 'Task 2'
+# Add your actual task configuration here
+
+  - script: echo 'Conditional Task'
+    displayName: 'Conditional Task'
+    condition: |
+      and(succeeded(), eq(variables['Build.SourceBranchName'], 'develop'))
+# Add your actual conditional task configuration here

@@ -1,0 +1,333 @@
+https://happiestminds.udemy.com/course/aws-eks-kubernetes-masterclass-devops-microservices/learn/lecture/21145496#overview
+https://slides.kubernetesmastery.com/#1
+
+rancher desktop
+
+
+1. Need of kubernetes
+Kubernetes is a powerful open-source container orchestration platform that automates the deployment, scaling, and management of containerized applications.
+There are several reasons why Kubernetes is important and necessary:
+-Scalability: Kubernetes allows you to easily scale your applications up or down based on demand, ensuring that you can handle increased traffic or workload.
+-Fault-tolerance: Kubernetes provides self-healing capabilities, ensuring that your applications continue to run even if there are failures or disruptions 
+ in the underlying infrastructure.
+-Resource optimization: Kubernetes enables efficient use of resources by allowing you to deploy containers on the same machine, ensuring that resources are
+ fully utilized.
+-Portability: Kubernetes supports multiple container runtimes, making it easy to deploy and manage applications across different cloud providers or 
+ on-premises environments.
+-Automation: Kubernetes automates many of the manual tasks associated with deploying and managing containers, saving time and reducing the likelihood 
+ of errors.
+-Overall, Kubernetes is essential for organizations looking to deploy, manage, and scale containerized applications effectively and efficiently.
+
+2.Kubernetes cluster:
+-It is a group of nodes that works together to provide a platform for deploying an managing containerized applications.
+-It includes the control plane for managing the overall state of the system, worker nodes for running application containers and networks for allowing 
+communication b/w the components. 
+
+ 
+3.Kubernetes architecture:
+-It consists of master and worker nodes
+-Master consists of
+a. kube-apiserver 
+-It acts as the frontend for the kubernets controll plane. It exposes the kubernetes api
+-All the CLItools like kubectl, components of the master and the worker node communicate only through API server.
+
+b. etcd 
+-It is a key value store which stores the master and node information.
+-It is a backing store for all the cluster data. By transfering the etcd, all the data can be transfered
+
+c. kube-scheduler 
+-It distributes the containers across the multiple nodes based on the worker node load and affinity, anti-affinity, taint and tolerent configurations of
+the worker node
+
+d. kube controll manager 
+-Responsible for noticing and responding when the nodes, containers or endpoints go down. They decide to bring up new containers.
+-It is a combination of many controllers like, 
+	i.Node controller: Responsible for noticing and responding when nodes go down.
+	ii.Replication controller: Responsible for maintaining desired number of pods.
+	iii.Endpoinds controlllers: Pollulates the endpoints object (that is, joints, services & Pods)
+	iv.Service account and token controller: Creates default accounts and API access for new namspaces. 
+        
+
+e. cloud controll manager 
+-lets you link your cluster into your cloud provider's API, and separates out the components that interact with that cloud platform from components that 
+only interact with your cluster.
+-On premise k8s cluster will not have this component
+
+-Worker nodes consistes of
+a. Kubelet 
+-It is agent that runs on each worker node in the cluster.
+-It makes sure that the containers are running in a pod on a node.
+ 
+b. Kube-Proxy 
+-It is network proxy which runs on each worker node.
+-It manintains the network rules on the nodes(network rules allow network communication to your pods from network sessions inside of the cluster)
+
+
+*Yaml basics to write a manifest file in k8s
+-YAML stands for YAML aint Markup language(extensively used in web development)
+-Yaml is used to store information in the human readable format
+-It is consists of key value pair.
+-It is similar to JSON(java script object notation)
+-The file can be defined using .yaml or .yml
+-Comments are defined with # in yml file and key values are separated with (: ). Space after colon is mandatory to seperate the key from the value.
+-String is the object under which no other key values are defined. Eg: apiVersion, Kind
+-Dictionary/map is a object under which multiple key vale pairs are defined. Equal space should be given for all the items under the dictionar. Eg: metadata under which name is defined.
+-Listing can be done using – for each with same gap or within [ ] separated by , .
+-YAML document separator ( --- ) is used write multiple components in a single yml file. 
+ 
+
+3.Kubernetes objects:
+-Objects are the fundamental units of the system that represent the state of the cluster.
+-They are used to manage and corordinate the deployment, scaling and updation of application and services in the cluster.
+-K8s system uses the objects to ensure the actual state of the cluster matches to the desired state.
+_objects are defined using YAML or JSON manifests
+-K8s objects includes,
+
+a.Pods:
+-A pod is the smallest execution unit in Kubernetes. During the command po can be used in place of pod
+-A pod encapsulates one or more applications. 
+-Pods are ephemeral by nature, if a pod (or the node it executes on) fails, Kubernetes can automatically create a new replica of that pod to continue operations. 
+-K8s does not deploy containers directly to the worker nodes. They are deployed as pods.
+-Pod is a single instance of an application.
+-Generally pods will have one to one relationship with the containers.
+-Multiple containers can be deployed in a single pod. Even containers with different namespaces can be deployed in the same pod include one or more containers.(But it is not recommended as it adds to the complexity of the application )
+But the containers should not be the same kind(like same application containers)
+-In multiple container, one container can be the one which contains the actual application. A sidecar container or a helper container.
+-The side car containers can be 
+  i.data pullers,which is used to pull the data required by the main container.
+  ii.data pushers,used to push the data collected from the main container(like logs)
+  iii.Proxies
+
+Create Pods with YML
+-The Yml includes apiVersion, kind, metadata and spec 
+-apiVersion 
+-The kind is used to define the objects such as pod, replicaset, services etc
+-Metadata is used to specify components such as name, label of the object
+-Spec is used to define the specifications of the object
+-kubectl create -f <pod.yml name> --> used to create pod from the yml file.
+
+
+b.Services:
+
+c.Deployments:It is used to create the pods and maintain the replica of pods using replicaset. 
+	Deployment = Replicaset + pod + autoscaling + rolling updates
+-Deployment is an high-level controller as it includes components such as replicaset, pods, autoscaling. So deploymnet is preferred over other controllers such as replicaset as it is a superset.
+-When ever a deployment is created, by default the replicaset will be rolled out and a new replicaset will be created
+-Versions is maintained by the deployment so the rolling back of the versions is easy.
+-We can pause and resume the deployment. It is used when multiple changes are required and to avoid the immediate application of each changes.
+-Deployment by default maintains last 10 application version histories.
+-Canary deployment is available.
+kubectl create deployment <deploymnet.yml> --image=<docker image> -->  used to create deployment.
+kubectl get deployments/deploy --> list all the deployments
+kubectl scale –replicas=<no of replicas> deployment <deployment name>
+
+Expose deployment as a service by imperative way
+-Used to expose the application to external traffic
+-kubectl expose deployment <deployment name> --type=Nodeport --port= --target-port=<container port> --name=<service name to be created>
+
+Update Deployment by imperative way
+-Updating the deployment can be done using set image or by editing the deployment.yml file
+1.Set image method
+-kubectl set image deployment <deployment name> <container name>=<new container image with the tag to which we need to update> --record=true (this is used to enable the versioning history) 
+-When ever any updation is done to the deployment, new replicaset will be created with the desired pods and the old replicaset pod count will become zero.
+
+2.Edit deployment.yml
+-It is used over set image in real time
+-kubectl edit deployment <deployment.yml file name> --record=true (this is used to enable the versioning history).
+-This command opens the deployment file where the version (tag) of the image can be changed in the spec section and saved.
+-New rs will be created 
+-The pods will be recreated with the updated versions and will be tagged with the new rs code.
+
+Rolling back the deployment by imperative way
+1.Rolling back can be done to the previous version.
+-kubectl rollout undo deployment <deployment name> --> used to rollout to the previous version of deployment
+-Once the rollout to previous version is done, the revision no will be deleted for the previous version and a new version will
+be created.
+2.Roll back to a specific version.
+-kubectl rollout undo deployment <deployment name> --to-revision=<revision no> --> used to rollout to a specific version of deployment.
+-In the roll out history, the revision version of the previous version will be deleted an recreated with the latest no
+
+Pause and resume deployments by imperative way
+-It is required to avoid terminating and restarting of the pods in the live deployment for each change when we have to do multiple changes to deploy.
+-kubectl rollout pause deployment <deployment name> --> used to pause the deployment
+-After deployment is paused, all  the changes in the live deployment is done 
+-kubectl rollout resume deployment <deployment name> --> used to resume the deployment
+ 
+
+d.Replicaset: It maintains the stable set of pods running at any give point of time. In commands can also use rs in place of replicaset.
+
+Expose replicaset as a service to access it through the internet.
+-kubectl expose rs <replicaset name> --type=Nodeport --port= --target-port=<container port> --name=<service name to be created>
+-After exposing, it can e accessed using http://<public IP of the node>:<port of nodeport>
+-Each time the request is made, it will be loadbalanced between the nodes.
+
+e.Configmaps:
+
+f.Secrets:
+
+g.StatefulSet:
+
+h.Namespaces:
+
+i.PersistentVolumes:
+
+j.Job:
+
+k.CronJob: 
+
+4.Kuberenetes services:
+a.ClusterIP:
+-Used for providing the access b/w the objects within the cluster.
+-It is the default service of k8s
+-It enables communication b/w the pods in a deployment
+-Provide stable IP address for pods that can be replaced
+-If multiple Pods are associated, the ClusterIP Service uses load balancing to distribute traffic equally among them.
+-Load balancing is done for the pods, not for the nodes. Kubernetes uses a round-robin algorithm to distribute traffic evenly among the available 
+Pods behind the Services
+Eg: ClusterIP is used to enable communication b/w the front end and backend services or enable communication b/w multiple instances of the same service
+
+b.NodePort:
+-Used to provide access to allow external traffic to the k8s objects for the external clients.
+-ClusterIP will be created automatically when nodeport is created which helps to divert the incoming traffic
+-It provides a static port number that can be used to access the service from the outside of the cluster.
+-Default port no b/w 30000 to 32767 is allocated for worker nodes. If you are going to choose node port explicitly, ensure that the port was not already 
+used by another service.
+-Can contact the NodePort Service, from outside the cluster, by requesting <WorkerNodeIP>:<NodePort>.
+-Each service will have a ClusterIP Service Port (as Port in the yml file). Target port is the container port in the pod. And then the Nodeport which is the
+worker node port. 
+-Here, nodeIp is the IP of the worker node which can be know by kubectl get nodes (which might change if restarted)
+-NodePort Service doesn't do any kind of load balancing across multiple nodes. It simply directs traffic to whichever node the client connected to
+-The service maps the container port to the service port and exposes the service on the nodeport. Here, the container port is the port on which the application inside the container is listening for the requests. This port should be exposed from the container for the communication purpose.
+-Target port is the port to which the traffic is forwarded to the pods. Nodeport is the port on node where the service is exposed.(30000-32767)
+-In the imperative way we cannot define the nodeport while we can specify in the declarative way.
+-So when a user try to access using <WorkerNodeIP>:<NodePort>, the traffic come from the nodeport(range 30000-32767), then sent to the clusterIP and then sent to the targetport (container port) from which the application will be accessible 
+
+ i.How nodeport works
+ -When you expose your app by creating a Kubernetes service of type NodePort, a NodePort in the range of 30000 - 32767 and an internal cluster IP address is assigned to the service. 
+ -The NodePort service serves as the external entry point for incoming requests for your app. 
+ -The assigned NodePort is publicly exposed in the kubeproxy settings of each worker node in the cluster. 
+ -Every worker node starts listening on the assigned NodePort for incoming requests for the service. 
+ -To access the service from the internet, you can use the public IP address of any worker node that was assigned during cluster creation and the NodePort in the format <IP_address>:<nodeport>. 
+ -If you want to access the service on the private network, use the private IP address of any worker node instead of the public IP address.
+
+NodePort Service creation with yml
+-In the yml file, the kind is defined as service.
+-In the spec, selectors are used to define the label of the pod which is used in the pod yml file to loadbalance the traffic
+coming to the service across the pod with that lable. 
+
+
+
+
+
+
+
+
+
+
+c.Loadbalancer:
+-It is another type of service to expose the cluster to external clients but uses the load balancer of the cloud providers such as aws, azure or GCP
+-The traffic coming from external clients goes through a path like this: External client->Loadbalancer->Worker node IP->NodePort->ClusterIP Service->Pod
+
+
+5.Kubernetes configurations:
+a.Imperative approch: Imperative configuration involves creating Kubernetes resources directly at the command line(kubectl) against a Kubernetes cluster. 
+(kubectl command is not there to directly create the replicaset. Hence yml file is used for creation)
+b.Declarative approch: Declarative configuration defines resources within manifest files and then applies those definitions to the cluster through kubectl 
+command.
+
+6.Commands:  https://kubernetes.io/docs/reference/kubectl/cheatsheet/ 
+kubectl get <object> --> get information about the object such as node, pod, namespace, pv, services
+kubectl get <object> <name of the object> --> get information about the perticular object such as node, pod, namespace, pv, services.
+kubectl run <pod name> --image <container image name> --> used to create the pod by imperative way
+kubectl explain pods --> get the documentation for pod manifests
+kubectl apply -f <manifest file> --> will create the object in the manifest file. If already exist, it will update according to the yml
+kubectl apply -f <manifest file> -f <manifest file> --> will create multiple object in the manifest file.
+kubectl apply -f <directory> --> will create all the objects in the directory.
+kubectl get services /svc --> List all services in the namespace
+kubectl get pods --all-namespaces --> List all pods in all namespaces
+kubectl get pods <pod name> -o wide --> List all pods in the current namespace, with more details such as Details such as name of the pod (name), no of container instances in the pod that are ready(ready),status of the pod such as running, pending, succeeded, failed or unknown, no of times the pod has restarted(restarts), pod creation time(age), IP assigned to the pod, node in which the pod is running, current condition of the pod(ready, installed, containers are ready and pod scheduled), status of the conatiner(such as running,terminated or waiting) and volumes mounted in the container in the pod.
+Name: The name of the pod.
+Ready: The number of container instances in the pod that are ready.
+Status: The current status of the pod, such as "Running", "Pending", "Succeeded", "Failed", or "Unknown".
+Restarts: The number of times the container instances in the pod have been restarted.
+Age: The amount of time since the pod was created.
+IP: The IP address assigned to the pod.
+Node: The name of the Kubernetes node where the pod is running.
+Nominated Node: The name of the node that the pod is nominated to run on, if applicable.
+Readiness Gates: The status of the pod's readiness gates, if any are defined.
+Conditions: The current conditions of the pod, such as "Ready", "Initialized", "ContainersReady", and "PodScheduled".
+Containers: The names of the containers in the pod and their current status, such as "Running", "Terminated", or "Waiting".
+Volumes: The names of the volumes mounted in the containers in the pod, if any are defined.
+kubectl get deployment my-dep --> List a particular deployment
+kubectl get pods --> List all pods in the namespace
+kubectl get pod my-pod -o yaml --> Get a pod's YAML
+kubectl describe <nodes/pods> <nodename/podname> --> it gives all the steps that were done in the background. Describe command is used to trouble shoot as it
+describes all the steps which happened in the object
+kubectl logs <pod name>  –> get the logs
+kubectl logs -f <pod name>  --> used to stream the logs. Which means the logs will be creating continuously for all the activities which are running. Ctrl c to come out
+kubectl delete <object type> <object name> --> used to delete the object
+kubectl exec -it <pod name> -- /bin/bash --> used to connect to the container inside the pod
+[exec is used in the unix based operating system to replace the current process with the new process. Using /bin/bash in exec ensures that the script is executed by the bash shell even if the default shell is set to another shell such as /bin/sh ]
+kubectl get <object> <object name> -o yaml -->  the information of the object in the yml format
+kubectl replace -f <.yml file>  --> used to completely replace an existing object with the new configuration. 
+kubectl rollout status deployment <deployment name> -->
+kubectl rollout history deployment <deployment name> --> lists all the rollouts and the causes of the rollouts
+kubectl rollout history deployment <deployment name> --revision=<required revision no> -->  details of a particular revision version. (version no can be obtained from previous command)  
+ 
+Kubernetes :-
+
+* What is Kubernetes ?
+
+* What are Kubernetes Components ?
+
+* What is etcd ?
+
+* What is master & minion ?
+
+* How to make quorum of cluster?
+
+* What is Replication controller & what it does ?
+
+* What is ingress ?
+* Difference between Kubernetes & Docker Swarm ?
+
+* How can you rollbck the previous version of application in Kuberntes?
+
+* Scenario: There are 2 tables, emp, empsal if there schema changes, How does that deployment happens into containers/POD automatically?
+
+* How does container know that application is getting failure ?
+
+* Difference between nodeport, clusterIP, load balancer & ingress ?
+
+* What is kubectl & kubelet ?
+
+* What is the use of Kube -controller manager ?
+
+* What is pod ?
+
+* How many containers can run in a pod ?
+* How many containers can be launched in a node ?
+
+* What is the role of Kube -Scheduler ?
+
+* How the 2 pods communicate with each other ?
+
+* How 2 containers inside a pod communicate with each other ?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

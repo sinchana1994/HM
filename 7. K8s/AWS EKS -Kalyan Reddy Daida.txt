@@ -1,0 +1,114 @@
+Github: https://github.com/stacksimplify/aws-eks-kubernetes-masterclass
+
+1) EKS cluster core feature include
+A. EKS control Plane: 
+-It is the master node. 
+-It is managed by aws(where as in k8s it is managed by us). 
+-So all the objects in the master will be maintained by aws and will be highly available. 
+-It consists of at least 2 API server nodes and 3 etcd nodes that run across 3 availability zones in an region.
+-One EKS control plane cannot communicate with other EKS cluster in the same or different AWS account unless we auhorize the RBAC policies.
+-This makes the EKS cluster highly secure and available configuration hence recommented for production deployments.  
+
+B. Workernodes and nodegroups: 
+-It is the ec2 instance where we run the application workloads. 
+-All instances in a node group must have to be the same instance type, be running the same Amazon Machine Image (AMI) 
+and use the same Amazon EKS worker node IAM role. 
+-Workernodes connect to the control panel via cluster API server endpoint.
+-Workernodes in the EKS cannot be stopped as regular ec2 instance. It has to be deleted if not used or can be autoscaled.
+
+C. Fargate profiles (serverless): 
+-Instead of ec2 instance, applications can be run on serverless fargate. Fargate profiles run only on private subnets.
+
+D. VPC: 
+-Application workload can be deployed to public subnets, create node group in private subnet or in fargate profiles.
+-EKS used VPC network policies to restrict traffic b/w control plane components to within a single cluster.
+
+2) How EKS works
+A. Create EKS cluster which automatically creates control plane
+B. Deploy worker nodes
+
+
+3) Create EKS cluster using eksctl
+-ekctl create cluster is used to create the cluster. which should include the name of the cluster, region, zones (if the availability zone is not specified,
+it will automatically select the zone which might throw the error say unavailability of server) and --without-nodegroup (if not specified, it creates the node
+group with two nodes with m4 large.so no scope of customization)
+-the eks cluster creation will take 15-20mins.
+-kubectl get command is used to list the nodes present
+-eksctl get cluster will list the cluster created in aws account
+
+
+4) Create and associate IAM OIDC provider for EKS cluster
+-Can be done through aws console or eksctl
+-IAM OIDC (OpenID connect) is a useful feature for managing user access to your EKS cluster and applying AWS IAM policies to control 
+access to your resources.
+
+5) Create EC2 keypair
+-As the worker nodes refers to the ec2 instance, key pair is required (A key pair, consisting of a public key and a private key, is a set of security 
+credentials that you use to prove your identity when connecting to an Amazon EC2 instance. Amazon EC2 stores the public key on your instance, and you 
+store the private key)
+-Key pair can be created in aws-ec2-network&security-key pairs. (pem format is used when connecting through the windows/openSSH. ppk is when connecting
+through PuTTY or PuTTYgen)
+
+6) Creating node groups with additional add-ons in public subnet
+-Can create node group through command line by specifing the name, region, instance type, desired no, min and max no of worker nodes, ssh access and key.
+- managed node groups is the worker ec2 instances that are managed by aws eks
+-3-5 mins is required to create the node group through the cli
+
+7) Verify EKS cluster and nodes groups
+-Verify the node group configurerations
+-Check for the iam policies attached to the workernodes. the policies should include EKS workernode policy and the policies required for the access to 
+other resources such as ECR etc
+-The iam permissions can be attached to the respective pods or to a worker node so the same permission will be allowted to all the pods in the worker node.
+-Verifing the NAT gateway. If the nodes groups are created in the private subnet, access to EKS cluster and internet will be provided only by NAT gateway.
+-NAT gateway and route tables will be created if it is specified in the tags while creating the cluster.
+-Check the security groups for the inbound rules for the worker nodes (0.0.0.0/0 & ::/0 referts to internet for IPv4 and IPv6 respectively)
+
+8)EKS pricing
+-Pricing of EKS include cluster plane, workernodes and fargate profile. 
+
+9)Deleting the EKS cluster
+-If the cluster is created through the eksctl and after the creation if any addition or alterrations are made (for eg, adding the inbound rules for the
+security group, policy changes etc) that has to be rolled backed to the original condition if not the cloudformation events will fail wont be able to delete the cluster.
+-So if the deletion of the cluster is failing check the CF stack and can proceed.
+
+
+
+
+9845191924
+
+
+
+
+
+ pg_dump msil-asbp-db > RDS.sql
+
+
+pg_dump -h 35.154.56.243 -p 5432 -U AWSReservedSSO_Happiestmind_ASBP_policy_8b11b4471cdebd83/Happiestminds_Prabhu@maruti.co.in msil_asbp_db > RDSdev.sql
+
+pg_dump -h msil-asbp-db.c5gryvg0p3j9.ap-south-1.rds.amazonaws.com -U AWSReservedSSO_Happiestmind_ASBP_policy_8b11b4471cdebd83/Happiestminds_Brijes@maruti.co.in msil-asbp-db RDSdb.sql
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

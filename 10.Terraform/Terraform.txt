@@ -1,0 +1,39 @@
+https://github.com/zealvora/terraform-beginner-to-advanced-resource
+
+Tools used to deploy infrastructure as a code are
+Terraform, Cloudformation, Ansible, Heat, Saltstack, Chef, Puppet etc.
+Here, Ansible, Chef and Puppet are primarily used to manage software on the existing servers.
+
+Pros
+-Open source
+-Terraform can integrate with the configuration management tools such as Ansible to configure the services.
+-Terraform supports multiple providers (cloud providers and others too) such as AWS, Azure, Akamai, Alibaba, Google cloud platform, Helm, Kubernetes, 
+grafana etc.
+-Easily extensible with the plugins
+
+Installation
+-Terraform - downloads - windows - download the file and extract the .exe file - move the .exe file to c drive.
+-To run the terraform globally (not restricted to c drive) - system properties - envirnment variales - path - edit - browze - select the terraform.exe file
+-For a linux machine, select run the commands specifiles
+
+Setup and installation in visual studio
+-Extentions are the add-ons used to allow you the required customizations and enhance the experince. (Without the terraform extension installed, the entred 
+contents will be monocolour and with the extensions it will be colourfull)
+
+
+Authentication and authorization
+-It is required for the terraform to access aws (or any other providers) and create the required resources.
+-Access credentials for different providers are,
+i. AWS - Access and secret access key
+ii. GitHub - Tokens
+iii. Kubernetes - Kubeconfig file, credential config
+iv. Digital Ocean - Tokens
+
+a.Virtual machine through terraform
+-It is the creation of the ec2 instance from terraform
+-All the configurations are specified in the resource block.
+-Resource block contains,
+i. ami --> which can be obtained from the aws console. It differes for each region.
+ii.instance type --> it is t2.micro or any other
+
+

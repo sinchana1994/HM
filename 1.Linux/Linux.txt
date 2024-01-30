@@ -1,0 +1,39 @@
+*Linux file structure
+
+-In Linux, the command "cd /" is used to change the current working directory to the root directory of the file system. 
+-The root directory is the top-level directory in the file system hierarchy, and all other directories and files are located beneath it.
+-When you execute the command "cd /", you are essentially navigating to the root of the file system. 
+-This means that you can access any directory or file in the file system from this location.
+- / consists of bin  boot  dev  etc  home  lib  lib64  local  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var directories.
+1. /bin
+	-It consists of the binaries and executables
+2. /sbin
+	-It consists of system binaries which will be executed by the root users only.
+3. /lib
+
+4. /etc
+	-It is for the editable text configuration
+5. /home
+	-As linux supports multiple users, the user list will be store here.
+6. /dev
+	-Stands for device files
+7. /boot
+	-It consists of the files needed to boot the system
+8. /opt
+	-It consists of optional or the add on software
+9. /var
+	-It contains variable files which will change as the operating system is being used. Like logs and chache files
+10 /tmp
+	-
+ 
+-In Linux, the tilde symbol (~) represents the home directory of the current user.
+-Note that the tilde symbol is a shorthand for the current user's home directory, so it may be different for different users on the same system.
+
+*Commands
+- vi <file name> --> open text editor for creating, editing, viewing the text file.
+	- i --> to insert
+	- :wq! --> to save and exit
+	- :q! --> exit without save
+	- x --> delete a character of the cursor position
+	- dd --> delete the line of the cursor position
+	- yy --> copy the line of the cursor position
